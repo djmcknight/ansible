@@ -256,12 +256,13 @@ class CertificateSet(object):
         '''
         Load lists of PEM certificates from a file or a directory.
         '''
-        if os.path.isdir(path):
-            for dir, dummy, files in os.walk(path, followlinks=True):
+        b_path = to_bytes(path, errors='surrogate_or_strict')
+        if os.path.isdir(b_path):
+            for dir, dummy, files in os.walk(b_path, followlinks=True):
                 for file in files:
                     self._load_file(os.path.join(dir, file))
         else:
-            self._load_file(path)
+            self._load_file(b_path)
 
     def find_parent(self, cert):
         '''
@@ -309,12 +310,12 @@ def main():
     # Load intermediate certificates
     intermediates = CertificateSet(module)
     for path in module.params['intermediate_certificates']:
-        intermediates.load(os.path.expanduser(os.path.expandvars(path)))
+        intermediates.load(path)
 
     # Load root certificates
     roots = CertificateSet(module)
     for path in module.params['root_certificates']:
-        roots.load(os.path.expanduser(os.path.expandvars(path)))
+        roots.load(path)
 
     # Try to complete chain
     current = chain[-1]

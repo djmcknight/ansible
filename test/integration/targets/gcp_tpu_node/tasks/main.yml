@@ -42,7 +42,7 @@
     that:
       - result.changed == true
 - name: verify that node was created
-  gcp_tpu_node_facts:
+  gcp_tpu_node_info:
       zone: us-central1-b
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
@@ -53,7 +53,7 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | length >= 1
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a node that already exists
   gcp_tpu_node:
@@ -89,7 +89,7 @@
     that:
       - result.changed == true
 - name: verify that node was deleted
-  gcp_tpu_node_facts:
+  gcp_tpu_node_info:
       zone: us-central1-b
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
@@ -100,7 +100,7 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | length == 0
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a node that does not exist
   gcp_tpu_node:

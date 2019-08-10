@@ -105,19 +105,8 @@ notes:
 - If you do not pass db parameter, tables will be created in the database
   named postgres.
 - PostgreSQL allows to create columnless table, so columns param is optional.
-- The default authentication assumes that you are either logging in as or
-  sudo'ing to the postgres account on the host.
-- To avoid "Peer authentication failed for user postgres" error,
-  use postgres user as a I(become_user).
 - Unlogged tables are available from PostgreSQL server version 9.1
   U(https://www.postgresql.org/docs/9.1/sql-createtable.html).
-- This module uses psycopg2, a Python PostgreSQL database adapter. You must
-  ensure that psycopg2 is installed on the host before using this module.
-- If the remote host is the PostgreSQL server (which is the default case), then
-  PostgreSQL must also be installed on the remote host. For Ubuntu-based
-  systems, install the postgresql, libpq-dev, and python-psycopg2 packages
-  on the remote host before using this module.
-requirements: [ psycopg2 ]
 author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment: postgres
@@ -491,21 +480,17 @@ def main():
         module.warn("cascade=true is ignored when state=present")
 
     # Check mutual exclusive parameters:
-    if state == 'absent' and (truncate or newname or columns or tablespace or
-                              like or storage_params or unlogged or
-                              owner or including):
+    if state == 'absent' and (truncate or newname or columns or tablespace or like or storage_params or unlogged or owner or including):
         module.fail_json(msg="%s: state=absent is mutually exclusive with: "
                              "truncate, rename, columns, tablespace, "
                              "including, like, storage_params, unlogged, owner" % table)
 
-    if truncate and (newname or columns or like or unlogged or
-                     storage_params or owner or tablespace or including):
+    if truncate and (newname or columns or like or unlogged or storage_params or owner or tablespace or including):
         module.fail_json(msg="%s: truncate is mutually exclusive with: "
                              "rename, columns, like, unlogged, including, "
                              "storage_params, owner, tablespace" % table)
 
-    if newname and (columns or like or unlogged or
-                    storage_params or owner or tablespace or including):
+    if newname and (columns or like or unlogged or storage_params or owner or tablespace or including):
         module.fail_json(msg="%s: rename is mutually exclusive with: "
                              "columns, like, unlogged, including, "
                              "storage_params, owner, tablespace" % table)

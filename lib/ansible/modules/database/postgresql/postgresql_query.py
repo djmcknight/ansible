@@ -56,18 +56,13 @@ options:
     type: str
     aliases:
     - login_db
-notes:
-- The default authentication assumes that you are either logging in as or
-  sudo'ing to the postgres account on the host.
-- To avoid "Peer authentication failed for user postgres" error,
-  use postgres user as a I(become_user).
-- This module uses psycopg2, a Python PostgreSQL database adapter. You must
-  ensure that psycopg2 is installed on the host before using this module. If
-  the remote host is the PostgreSQL server (which is the default case), then
-  PostgreSQL must also be installed on the remote host. For Ubuntu-based
-  systems, install the postgresql, libpq-dev, and python-psycopg2 packages
-  on the remote host before using this module.
-requirements: [ psycopg2 ]
+  autocommit:
+    description:
+    - Execute in autocommit mode when the query can't be run inside a transaction block
+      (e.g., VACUUM).
+    - Mutually exclusive with I(check_mode).
+    type: bool
+    version_added: '2.9'
 author:
 - Felix Archambault (@archf)
 - Andrew Klychkov (@Andersson007)
@@ -99,10 +94,10 @@ EXAMPLES = r'''
       id_val: 1
       story_val: test
 
-- name: Insert query to db test_db
+- name: Insert query to test_table in db test_db
   postgresql_query:
     db: test_db
-    query: INSERT INTO test_db (id, story) VALUES (2, 'my_long_story')
+    query: INSERT INTO test_table (id, story) VALUES (2, 'my_long_story')
 
 - name: Run queries from SQL script
   postgresql_query:
@@ -110,6 +105,20 @@ EXAMPLES = r'''
     path_to_script: /var/lib/pgsql/test.sql
     positional_args:
     - 1
+
+- name: Example of using autocommit parameter
+  postgresql_query:
+    db: test_db
+    query: VACUUM
+    autocommit: yes
+
+- name: >
+    Insert data to the column of array type using positional_args.
+    Note that we use quotes here, the same as for passing JSON, etc.
+  postgresql_query:
+    query: INSERT INTO test_table (array_column) VALUES (%s)
+    positional_args:
+    - '{1,2,3}'
 '''
 
 RETURN = r'''
@@ -168,6 +177,7 @@ def main():
         named_args=dict(type='dict'),
         session_role=dict(type='str'),
         path_to_script=dict(type='path'),
+        autocommit=dict(type='bool'),
     )
 
     module = AnsibleModule(
@@ -180,6 +190,10 @@ def main():
     positional_args = module.params["positional_args"]
     named_args = module.params["named_args"]
     path_to_script = module.params["path_to_script"]
+    autocommit = module.params["autocommit"]
+
+    if autocommit and module.check_mode:
+        module.fail_json(msg="Using autocommit is mutually exclusive with check_mode")
 
     if positional_args and named_args:
         module.fail_json(msg="positional_args and named_args params are mutually exclusive")
@@ -194,7 +208,7 @@ def main():
             module.fail_json(msg="Cannot read file '%s' : %s" % (path_to_script, to_native(e)))
 
     conn_params = get_conn_params(module, module.params)
-    db_connection = connect_to_db(module, conn_params, autocommit=False)
+    db_connection = connect_to_db(module, conn_params, autocommit=autocommit)
     cursor = db_connection.cursor(cursor_factory=DictCursor)
 
     # Prepare args:
@@ -248,7 +262,8 @@ def main():
     if module.check_mode:
         db_connection.rollback()
     else:
-        db_connection.commit()
+        if not autocommit:
+            db_connection.commit()
 
     kw = dict(
         changed=changed,

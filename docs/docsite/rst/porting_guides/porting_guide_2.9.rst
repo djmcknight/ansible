@@ -19,7 +19,7 @@ This document is part of a collection on porting. The complete list of porting g
 Playbook
 ========
 
-No notable changes
+ * ``hash_behaviour`` now affects inventory sources. If you have it set to ``merge``, the data you get from inventory might change and you will have to update playbooks accordingly. If you're using the default setting (``overwrite``), you will see no changes. Inventory was ignoring this setting.
 
 
 Command Line
@@ -37,7 +37,7 @@ No notable changes
 Modules
 =======
 
-No notable changes
+* The ``win_get_url`` and ``win_uri`` module now sends requests with a default ``User-Agent`` of ``ansible-httpget``. This can be changed by using the ``http_agent`` key.
 
 
 Modules removed
@@ -60,15 +60,27 @@ The following modules no longer exist:
 Deprecation notices
 -------------------
 
-No notable changes
+The following modules will be removed in Ansible 2.13. Please update update your playbooks accordingly.
+
+* nxos_linkagg use :ref:`nxos_lag_interfaces <nxos_lag_interfaces_module>` instead.
+
+* vyos_interface use :ref:`vyos_interfaces <vyos_interfaces_module>` instead.
+ 
+* vyos_l3_interface use :ref:`vyos_l3_interfaces <vyos_l3_interfaces_module>` instead.
+
+The following functionality will be removed in Ansible 2.12. Please update update your playbooks accordingly.
+
+* ``vmware_cluster`` DRS, HA and VSAN configuration; use `vmware_cluster_drs <vmware_cluster_drs_module>`, `vmware_cluster_ha <vmware_cluster_ha_module>` and `vmware_cluster_vsan <vmware_cluster_vsan_module>` instead.
 
 
 Noteworthy module changes
 -------------------------
 
+* :ref:`vmware_cluster <vmware_cluster_module>` was refactored for easier maintenance/bugfixes. Use the three new, specialized modules to configure clusters. Configure DRS with :ref:`vmware_cluster_drs <vmware_cluster_drs_module>`, HA with :ref:`vmware_cluster_ha <vmware_cluster_ha_module>` and vSAN with :ref:`vmware_cluster_vsan <vmware_cluster_vsan_module>`.
 * `vmware_dvswitch <vmware_dvswitch_module>` accepts `folder` parameter to place dvswitch in user defined folder. This option makes `datacenter` as an optional parameter.
 * `vmware_datastore_cluster <vmware_datastore_cluster_module>` accepts `folder` parameter to place datastore cluster in user defined folder. This option makes `datacenter` as an optional parameter.
-
+* `mysql_db <mysql_db_module>` returns new `db_list` parameter in addition to `db` parameter. This `db_list` parameter refers to list of database names. `db` parameter will be deprecated in version `2.13`.
+* `snow_record <snow_record_module>` and `snow_record_find <snow_record_find_module>` now takes environment variables for `instance`, `username` and `password` parameters. This change marks these parameters as optional.
 * The ``python_requirements_facts`` module was renamed to :ref:`python_requirements_info <python_requirements_info_module>`.
 * The ``jenkins_job_facts`` module was renamed to :ref:`jenkins_job_info <jenkins_job_info_module>`.
 * The ``intersight_facts`` module was renamed to :ref:`intersight_info <intersight_info_module>`.
@@ -82,7 +94,9 @@ Noteworthy module changes
 * The ``memset_server_facts`` module was renamed to :ref:`memset_server_info <memset_server_info_module>`.
 * The ``one_image_facts`` module was renamed to :ref:`one_image_info <one_image_info_module>`.
 * The ``ali_instance_facts`` module was renamed to :ref:`ali_instance_info <ali_instance_info_module>`.
+* The ``xenserver_guest_facts`` module was renamed to :ref:`xenserver_guest_info <xenserver_guest_info_module>`.
 * The ``azure_rm_resourcegroup_facts`` module was renamed to :ref:`azure_rm_resourcegroup_info <azure_rm_resourcegroup_info_module>`.
+* The ``gcpubsub_facts`` module was renamed to :ref:`gcpubsub_info <gcpubsub_info_module>`.
 * The ``digital_ocean_account_facts`` module was renamed to :ref:`digital_ocean_account_info <digital_ocean_account_info_module>`.
 * The ``digital_ocean_certificate_facts`` module was renamed to :ref:`digital_ocean_certificate_info <digital_ocean_certificate_info_module>`.
 * The ``digital_ocean_domain_facts`` module was renamed to :ref:`digital_ocean_domain_info <digital_ocean_domain_info_module>`.
@@ -126,11 +140,64 @@ Noteworthy module changes
 * The ``ec2_vpc_subnet_facts`` module was renamed to :ref:`ec2_vpc_subnet_info <ec2_vpc_subnet_info_module>`.
 * The ``ec2_vpc_vgw_facts`` module was renamed to :ref:`ec2_vpc_vgw_info <ec2_vpc_vgw_info_module>`.
 * The ``ec2_vpc_vpn_facts`` module was renamed to :ref:`ec2_vpc_vpn_info <ec2_vpc_vpn_info_module>`.
+* The ``ecs_taskdefinition_facts`` module was renamed to :ref:`ecs_taskdefinition_info <ecs_taskdefinition_info_module>`.
 * The ``elasticache_facts`` module was renamed to :ref:`elasticache_info <elasticache_info_module>`.
 * The ``elb_application_lb_facts`` module was renamed to :ref:`elb_application_lb_info <elb_application_lb_info_module>`.
 * The ``elb_classic_lb_facts`` module was renamed to :ref:`elb_classic_lb_info <elb_classic_lb_info_module>`.
 * The ``elb_target_facts`` module was renamed to :ref:`elb_target_info <elb_target_info_module>`.
 * The ``elb_target_group_facts`` module was renamed to :ref:`elb_target_group_info <elb_target_group_info_module>`.
+* The ``gcp_bigquery_dataset_facts`` module was renamed to :ref:`gcp_bigquery_dataset_info <gcp_bigquery_dataset_info_module>`.
+* The ``gcp_bigquery_table_facts`` module was renamed to :ref:`gcp_bigquery_table_info <gcp_bigquery_table_info_module>`.
+* The ``gcp_cloudbuild_trigger_facts`` module was renamed to :ref:`gcp_cloudbuild_trigger_info <gcp_cloudbuild_trigger_info_module>`.
+* The ``gcp_compute_address_facts`` module was renamed to :ref:`gcp_compute_address_info <gcp_compute_address_info_module>`.
+* The ``gcp_compute_backend_bucket_facts`` module was renamed to :ref:`gcp_compute_backend_bucket_info <gcp_compute_backend_bucket_info_module>`.
+* The ``gcp_compute_backend_service_facts`` module was renamed to :ref:`gcp_compute_backend_service_info <gcp_compute_backend_service_info_module>`.
+* The ``gcp_compute_disk_facts`` module was renamed to :ref:`gcp_compute_disk_info <gcp_compute_disk_info_module>`.
+* The ``gcp_compute_firewall_facts`` module was renamed to :ref:`gcp_compute_firewall_info <gcp_compute_firewall_info_module>`.
+* The ``gcp_compute_forwarding_rule_facts`` module was renamed to :ref:`gcp_compute_forwarding_rule_info <gcp_compute_forwarding_rule_info_module>`.
+* The ``gcp_compute_global_address_facts`` module was renamed to :ref:`gcp_compute_global_address_info <gcp_compute_global_address_info_module>`.
+* The ``gcp_compute_global_forwarding_rule_facts`` module was renamed to :ref:`gcp_compute_global_forwarding_rule_info <gcp_compute_global_forwarding_rule_info_module>`.
+* The ``gcp_compute_health_check_facts`` module was renamed to :ref:`gcp_compute_health_check_info <gcp_compute_health_check_info_module>`.
+* The ``gcp_compute_http_health_check_facts`` module was renamed to :ref:`gcp_compute_http_health_check_info <gcp_compute_http_health_check_info_module>`.
+* The ``gcp_compute_https_health_check_facts`` module was renamed to :ref:`gcp_compute_https_health_check_info <gcp_compute_https_health_check_info_module>`.
+* The ``gcp_compute_image_facts`` module was renamed to :ref:`gcp_compute_image_info <gcp_compute_image_info_module>`.
+* The ``gcp_compute_instance_group_facts`` module was renamed to :ref:`gcp_compute_instance_group_info <gcp_compute_instance_group_info_module>`.
+* The ``gcp_compute_instance_group_manager_facts`` module was renamed to :ref:`gcp_compute_instance_group_manager_info <gcp_compute_instance_group_manager_info_module>`.
+* The ``gcp_compute_instance_facts`` module was renamed to :ref:`gcp_compute_instance_info <gcp_compute_instance_info_module>`.
+* The ``gcp_compute_instance_template_facts`` module was renamed to :ref:`gcp_compute_instance_template_info <gcp_compute_instance_template_info_module>`.
+* The ``gcp_compute_interconnect_attachment_facts`` module was renamed to :ref:`gcp_compute_interconnect_attachment_info <gcp_compute_interconnect_attachment_info_module>`.
+* The ``gcp_compute_network_facts`` module was renamed to :ref:`gcp_compute_network_info <gcp_compute_network_info_module>`.
+* The ``gcp_compute_region_disk_facts`` module was renamed to :ref:`gcp_compute_region_disk_info <gcp_compute_region_disk_info_module>`.
+* The ``gcp_compute_route_facts`` module was renamed to :ref:`gcp_compute_route_info <gcp_compute_route_info_module>`.
+* The ``gcp_compute_router_facts`` module was renamed to :ref:`gcp_compute_router_info <gcp_compute_router_info_module>`.
+* The ``gcp_compute_ssl_certificate_facts`` module was renamed to :ref:`gcp_compute_ssl_certificate_info <gcp_compute_ssl_certificate_info_module>`.
+* The ``gcp_compute_ssl_policy_facts`` module was renamed to :ref:`gcp_compute_ssl_policy_info <gcp_compute_ssl_policy_info_module>`.
+* The ``gcp_compute_subnetwork_facts`` module was renamed to :ref:`gcp_compute_subnetwork_info <gcp_compute_subnetwork_info_module>`.
+* The ``gcp_compute_target_http_proxy_facts`` module was renamed to :ref:`gcp_compute_target_http_proxy_info <gcp_compute_target_http_proxy_info_module>`.
+* The ``gcp_compute_target_https_proxy_facts`` module was renamed to :ref:`gcp_compute_target_https_proxy_info <gcp_compute_target_https_proxy_info_module>`.
+* The ``gcp_compute_target_pool_facts`` module was renamed to :ref:`gcp_compute_target_pool_info <gcp_compute_target_pool_info_module>`.
+* The ``gcp_compute_target_ssl_proxy_facts`` module was renamed to :ref:`gcp_compute_target_ssl_proxy_info <gcp_compute_target_ssl_proxy_info_module>`.
+* The ``gcp_compute_target_tcp_proxy_facts`` module was renamed to :ref:`gcp_compute_target_tcp_proxy_info <gcp_compute_target_tcp_proxy_info_module>`.
+* The ``gcp_compute_target_vpn_gateway_facts`` module was renamed to :ref:`gcp_compute_target_vpn_gateway_info <gcp_compute_target_vpn_gateway_info_module>`.
+* The ``gcp_compute_url_map_facts`` module was renamed to :ref:`gcp_compute_url_map_info <gcp_compute_url_map_info_module>`.
+* The ``gcp_compute_vpn_tunnel_facts`` module was renamed to :ref:`gcp_compute_vpn_tunnel_info <gcp_compute_vpn_tunnel_info_module>`.
+* The ``gcp_container_cluster_facts`` module was renamed to :ref:`gcp_container_cluster_info <gcp_container_cluster_info_module>`.
+* The ``gcp_container_node_pool_facts`` module was renamed to :ref:`gcp_container_node_pool_info <gcp_container_node_pool_info_module>`.
+* The ``gcp_dns_managed_zone_facts`` module was renamed to :ref:`gcp_dns_managed_zone_info <gcp_dns_managed_zone_info_module>`.
+* The ``gcp_dns_resource_record_set_facts`` module was renamed to :ref:`gcp_dns_resource_record_set_info <gcp_dns_resource_record_set_info_module>`.
+* The ``gcp_iam_role_facts`` module was renamed to :ref:`gcp_iam_role_info <gcp_iam_role_info_module>`.
+* The ``gcp_iam_service_account_facts`` module was renamed to :ref:`gcp_iam_service_account_info <gcp_iam_service_account_info_module>`.
+* The ``gcp_pubsub_subscription_facts`` module was renamed to :ref:`gcp_pubsub_subscription_info <gcp_pubsub_subscription_info_module>`.
+* The ``gcp_pubsub_topic_facts`` module was renamed to :ref:`gcp_pubsub_topic_info <gcp_pubsub_topic_info_module>`.
+* The ``gcp_redis_instance_facts`` module was renamed to :ref:`gcp_redis_instance_info <gcp_redis_instance_info_module>`.
+* The ``gcp_resourcemanager_project_facts`` module was renamed to :ref:`gcp_resourcemanager_project_info <gcp_resourcemanager_project_info_module>`.
+* The ``gcp_sourcerepo_repository_facts`` module was renamed to :ref:`gcp_sourcerepo_repository_info <gcp_sourcerepo_repository_info_module>`.
+* The ``gcp_spanner_database_facts`` module was renamed to :ref:`gcp_spanner_database_info <gcp_spanner_database_info_module>`.
+* The ``gcp_spanner_instance_facts`` module was renamed to :ref:`gcp_spanner_instance_info <gcp_spanner_instance_info_module>`.
+* The ``gcp_sql_database_facts`` module was renamed to :ref:`gcp_sql_database_info <gcp_sql_database_info_module>`.
+* The ``gcp_sql_instance_facts`` module was renamed to :ref:`gcp_sql_instance_info <gcp_sql_instance_info_module>`.
+* The ``gcp_sql_user_facts`` module was renamed to :ref:`gcp_sql_user_info <gcp_sql_user_info_module>`.
+* The ``gcp_tpu_node_facts`` module was renamed to :ref:`gcp_tpu_node_info <gcp_tpu_node_info_module>`.
 * The ``iam_mfa_device_facts`` module was renamed to :ref:`iam_mfa_device_info <iam_mfa_device_info_module>`.
 * The ``iam_role_facts`` module was renamed to :ref:`iam_role_info <iam_role_info_module>`.
 * The ``iam_server_certificate_facts`` module was renamed to :ref:`iam_server_certificate_info <iam_server_certificate_info_module>`.
@@ -138,6 +205,7 @@ Noteworthy module changes
 * The ``rds_snapshot_facts`` module was renamed to :ref:`rds_snapshot_info <rds_snapshot_info_module>`.
 * The ``redshift_facts`` module was renamed to :ref:`redshift_info <redshift_info_module>`.
 * The ``route53_facts`` module was renamed to :ref:`route53_info <route53_info_module>`.
+* The deprecated ``force`` option in ``win_firewall_rule`` has been removed.
 
 
 Plugins

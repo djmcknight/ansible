@@ -217,6 +217,7 @@ CACHE_PLUGIN_TIMEOUT:
   yaml: {key: facts.cache.timeout}
 COLLECTIONS_PATHS:
   name: ordered list of root paths for loading installed Ansible collections content
+  description: Colon separated paths in which Ansible will search for collections content.
   default: ~/.ansible/collections:/usr/share/ansible/collections
   type: pathspec
   env:
@@ -1310,9 +1311,9 @@ GALAXY_IGNORE_CERTS:
   - {key: ignore_certs, section: galaxy}
   type: boolean
 GALAXY_ROLE_SKELETON:
-  name: Galaxy skeleton direcotry
+  name: Galaxy role or collection skeleton directory
   default:
-  description: Role skeleton directory to use as a template for the ``init`` action in ``ansible-galaxy``, same as ``--role-skeleton``.
+  description: Role or collection skeleton directory to use as a template for the ``init`` action in ``ansible-galaxy``, same as ``--role-skeleton``.
   env: [{name: ANSIBLE_GALAXY_ROLE_SKELETON}]
   ini:
   - {key: role_skeleton, section: galaxy}
@@ -1320,7 +1321,7 @@ GALAXY_ROLE_SKELETON:
 GALAXY_ROLE_SKELETON_IGNORE:
   name: Galaxy skeleton ignore
   default: ["^.git$", "^.*/.git_keep$"]
-  description: patterns of files to ignore inside a galaxy role skeleton directory
+  description: patterns of files to ignore inside a Galaxy role or collection skeleton directory
   env: [{name: ANSIBLE_GALAXY_ROLE_SKELETON_IGNORE}]
   ini:
   - {key: role_skeleton_ignore, section: galaxy}
@@ -1420,13 +1421,14 @@ TRANSFORM_INVALID_GROUP_CHARS:
   description:
     - Make ansible transform invalid characters in group names supplied by inventory sources.
     - If 'never' it will allow for the group name but warn about the issue.
+    - When 'ignore', it does the same as 'never', without issuing a warning.
     - When 'always' it will replace any invalid charachters with '_' (underscore) and warn the user
-    - When 'silently', it does the same as 'always' sans the warnings.
+    - When 'silently', it does the same as 'always', without issuing a warning.
   env: [{name: ANSIBLE_TRANSFORM_INVALID_GROUP_CHARS}]
   ini:
   - {key: force_valid_group_names, section: defaults}
   type: string
-  choices: ['always', 'never', 'silently']
+  choices: ['always', 'never', 'ignore', 'silently']
   version_added: '2.8'
 INVALID_TASK_ATTRIBUTE_FAILED:
   name: Controls whether invalid attributes for a task result in errors instead of warnings
